@@ -1,0 +1,68 @@
+@import 'theme.less';
+//to be fixed
+@statebar-height: 10 * @unit-px;
+@statebar-border-radius: @border-r-panel @border-r-panel 0 0;
+@statebar-margin: 0 @margin;
+@icon-wrapper-margin: 2 * @margin;
+@time-wrapper-width: 25 * @unit-px;
+
+.statebar {
+  height: @statebar-height;
+  border-radius: @statebar-border-radius;
+  background-color: @primary-dark;
+  margin: @statebar-margin;
+  font-size: @fontSize-3;
+  font-weight: @bold;
+}
+
+.icon-wrapper {
+  margin-left: @icon-wrapper-margin;
+  cursor: pointer;
+  animation: iconLargeOff 0.1s linear; 
+}
+
+.icon-wrapper:hover {
+  animation: iconLargeOn 0.1s linear;
+  animation-fill-mode: forwards;
+}
+
+.time-wrapper {
+  margin-left: @icon-wrapper-margin;
+  font-size: @fontSize-2;
+  width: @time-wrapper-width;
+}
+
+::ng-deep .ant-progress-circle-trail {
+  stroke:@gary;
+}
+
+.icon-calibration {
+  width: 36px;
+  height: 36px;
+}
+
+circle {
+  fill: @gary;
+  stroke: @secondary;
+  stroke-width: 36;
+  stroke-dasharray: 50 115;
+  // animation: fillup 5s linear infinite;
+  // animation-fill-mode: forwards;
+}
+svg {
+    transform: rotate(-90deg);
+    background-color: @gary;
+    border-radius: 50%
+}
+@keyframes fillup {
+    to { stroke-dasharray: 115 115; }
+}
+
+// ::ng-deep .ant-progress-inner {
+//   width: 36px;
+//   background-color: @base;
+// }
+
+// ::ng-deep .ant-progress-bg {
+//   background-color: @secondary;
+// }

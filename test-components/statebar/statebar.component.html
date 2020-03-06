@@ -1,0 +1,20 @@
+<div class="statebar" fxLayout="row" fxLayoutAlign="center center">
+  <img class="icon-wrapper" src="assets/icon/low.svg" alt="low" />
+  <img class="icon-wrapper" src="assets/icon/ok.svg" alt="ok" />
+  <img class="icon-wrapper" src="assets/icon/over.svg" alt="over" />
+  <app-time-controller [gender]="gender"></app-time-controller>
+  <div class="icon-wrapper" fxLayout="column" fxLayoutAlign="center center">
+    <svg width="36" height="36">
+      <circle r="18" cx="18" cy="18"></circle>
+    </svg>
+  </div>
+  <app-ct-fast-calibration-icon></app-ct-fast-calibration-icon>
+  <a routerLink="/calibartion" routerLinkActive="active"
+    ><img
+      class="icon-calibration icon-wrapper"
+      src="assets/icon/calibration.svg"
+  /></a>
+  <!-- test -->
+  <input [(ngModel)]="gender" />
+  <p>Value: {{ gender }}</p>
+</div>
