@@ -1,0 +1,53 @@
+StudyFormType 定义study字段
+FormDefinition 定义表的方法
+
+ <app-study-editor
+          [isCreateForm]="true"
+        ></app-study-editor>
+
+        @Input() isCreateForm: boolean = false;  在表单那层
+==============================================================================================
+      跟操作数据库相关的接口 database/service
+
+
+      folder:
+      database forms machine model share signalr
+      patient protocol recon scan study
+
+      此前的data provider 部分，增删改查全都通过GQL进行，
+      现前后端结构优化后，除了query仍然使用GQL，update insert delete都直接调用restful接口完成。
+      且前端之前依赖于行为消息来进行状态推断，产生了大量的判断代码，
+      现在可以都直接获取状态信息，故对原先的业务代码进行整理和优化。
+
+数据库内有五个基本层次，patient，study，protocol，scan，recon
+
+主文件夹（database）下的graphql-client.service为graphql的客户端，与gql的http连接主体就在这儿（applo-client，http-link）
+query文件夹内的ts文件，包含了graphQL的基本请求语句
+
+service下的各个service，用于为pokeman其他组件调用graphQL接口提供服务，
+本身注入了graphql-client.service，包含了基本语句的组合，发送请求，接收返回信息。
+
+currrent: patientService 
+
+type 类型别名
+typeof 类型保护
+
+rxjs
+
+
+
+database
+
+machine
+
+model
+
+share
+
+
+
+20200304{
+      0. 高级类型
+      1. token useClass
+      2. Observable 类型
+}

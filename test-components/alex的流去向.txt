@@ -1,0 +1,387 @@
+hasura gql
+
+
+== toChangeFormState$  切换时起作用的流 ==
+
+study-card  的点击事件  ==> card-list  ==>  触发 dashboard层的 cardClick() 方法 & 发射这个方法里的，携带名为 studyId 和 patientId cardSignal 出去  （见下一行）
+
+（承接上一行）==> main 页面接收了 (cardSignal)="passingSignal($event)" <app-study-dashboard>  ==> 然后改变了 $studyCardIdBundles 的值， [idBundle]="$studyCardIdBundles"， <app-study-page>
+
+study-editor 渲染完成后，流就开始工作了，此时开始触发 (modelChange)="onChange($event)" 的 onChange() 事件。
+
+====================================================================================
+
+study-page：当 $options ，其次 $data , 才有显示
+
+study-editor: (modelChange)="onChange($event)" ， 触发这个流 toChangeFormState$，并把 $data 作为参数传入 ; 导入了 FormBaseComponent 
+
+FormBaseComponent：在 ngAfterContentInit() 这个生命周期发射 modelChange ==》 StudyEditorComponent 导入了FormBaseComponent，editor 渲染后开始 FormBaseComponent
+
+-------------------------------------------------------------------------------------------- start
+
+@idBundle?: Observable<StudyCardExportMeta>;   --study-page
+
+$data 在 study-page ngOnInit()阶段被赋值了
+
+====================================================================================
+
+解析 $onFormChangedResetPipe：
+
+return this.$onFormChangedResetPipe(data).pipe( first(), map( () => {} as OnUpdatedDataWithType ), first() )  
+
+===> 上面这个 data 是传入值， ( $data: UpdateStudyEditorModelWithValid ) 
+
+export interface OnUpdatedDataWithType {
+  patient: Patient;
+  study: Study;
+  valid: boolean;
+  type: EditorPipeTempType;
+}
+
+export type EditorPipeTempType = 'updateLocalStore' | 'resetState' | 'nothing';
+
+-------------------------------------------------------------------------------------------- end
+
+
+-------------------------------------------------------------------------------------------- start
+
+简化 toChangeFormState$ :
+
+toChangeFormState$: Subject<UpdateStudyEditorModelWithValid> = new Subject(); 
+
+UpdateStudyEditorModelWithValid 是一个接口，里面有 vaild, lastValidModel 字段。
+
+this.toChangeFormState$.asObservable().pipe( switchMap(... 此处进行一些判断),  takeUntil(... 此处设置完成流发出的条件) ).subscribe( () => {} , e => console.error(e) )
+
+① if (this.lastPatientExternalIdStashed !== data.lastValidModel.patient.data.external_id && this.lastStudyIdStashed === data.lastValidModel.study.id ) 
+② else if ( !!this.lastStudyIdStashed && this.lastStudyIdStashed === data.lastValidModel.study.id )
+③ return new Observable<OnUpdatedDataWithType>( (x) => { x.next() } )
+
+* 上述 switchMap() 里的第一个判断： 返回 $onFormChangedResetPipe, 这个流返回 OnUpdatedDataWithType
+
+
+到了 subscribe 阶段，开始做 2 个判断， 如下：
+
+* 第一个判断，当为 resetState 时，发射 携带名为 studyId 和 patientId 的 changeId 出去了， main 页面接收了。 ==> 即，在实际业务 edit 状态下，触发了 main 页面的 changeId() 方法。 <app-study-page>
+
+-------------------------------------------------------------------------------------------- end
+
+====================================================================================
+
+data.lastValidModel.patient.data.external_id 的来源：（第一个 data 是传入值，from：UpdateStudyEditorModelWithValid）
+
+用到的定义：接口 定义类型 类型别名type 类型断言as 映射类型（keyof, Pick<T, K>）
+
+export interface UpdateStudyEditorModelWithValid {
+  valid: boolean;
+  lastValidModel: { study: Study; patient: Patient };
+}
+
+export const PatientType = 'Patient' as const;
+
+export type Patient = TypedItem<     // 4个值
+  typeof PatientType,
+  string,
+  {
+    readonly name: string;
+    readonly birthday: Date;
+    readonly external_id: string;
+  },
+  {}
+>;
+
+export interface TypedItem<T, Id, D, R> extends TagID<Id, T> {
+  data: D;
+  relation: R;
+}
+
+export interface TagID<Id, Tag> {
+  readonly id: Id;
+  readonly __typename: Tag;
+}
+
+====================================================================================
+
+export interface StudyCardMeta {
+  name: string;
+  age: string;
+  patient_id: string;
+  type: string;
+  date: string;
+  src: string;
+}
+export interface StudyCardExportMeta {
+  studyId: string;
+  patientId: string;
+  // card_state: 'mocked' | 'real';
+}
+
+====================================================================================
+
+protocol-menu 页面：
+
+study-page 组件向子组件 protocol-menu 传入如下值： [studyId]="data.study.id"， [studyState]="data.study.data.state"
+
+当有 $studyId 时，<app-study-exam-flow> 出现   ==》 好像在这里做判断不会影响有页面与否。
+
+<div class="text" fxLayout="row" fxLayoutAlign="start center">
+    Finished
+    <div class="split-line"></div>
+  </div>
+  <app-study-card-list
+    class="finished-height-fixed"
+    [ids]="idsOfFinished"
+    (onItemClick)="cardClick({ data: $event, belongTo: 'finished' })"
+    [selectedId]="selectedCardId"
+  ></app-study-card-list>
+
+====================================================
+this.modelChange.emit({
+              valid: x.valid,
+              lastValidModel: this.model  ---- 确定
+});
+    
+   [model]="data"
+   [options]="options"
+
+   $data ==> valid + lastValidModel: {study: Study;patient: Patient;}
+
+   model: studyFormModel                ----- 确定
+
+export interface studyFormModel {
+  study: Study;
+  patient: Patient;
+}
+
+model 改变 ==> [ngModel]="form.get('patient_id').value" 改变 【 即 form.get() 改变 】
+
+※ (切换卡片的时候， ) $data 怎么流向 study-page ==> 因此切换了卡片
+
+studyId 是指每个 study 的ID，唯一
+patientId 不唯一， 有新老病人
+
+
+===============================
+
+20191126
+
+你可以把 InjectionToken 用作任何类型的提供商的令牌，但是当依赖是简单类型（比如字符串、数字、函数）时，它会特别有用。
+
+export interface ConditionType {
+  orderBy: 'asc' | 'desc';
+  limit?: number;
+  OrderByType: 'time' | 'age' | 'name';
+  state?: ProcessState;
+}
+
+export interface StudyRichQuery {
+  queryBy: (condtion: ConditionType) => Observable<Study['id'][]>;
+  queryAll: () => Observable<Study[]>;
+}
+
+export const studyRichQueryToken = new InjectionToken<StudyRichQuery>(            // 新建一个 InjectionToken 实例 || Creates a token that can be used in a DI Provider.
+  'studyRichQuery'
+);
+
+import {
+  studyRichQueryToken,
+  StudyRichQuery
+} from ''
+
+@Component({
+  selector: 'app-titlebar',
+  templateUrl: './titlebar.component.html',
+  styleUrls: ['./titlebar.component.less'],
+  providers: [{ provide: studyRichQueryToken, useClass: StudyService }]   // 暂定 是这个 service 里有queryBy()吗
+})
+
+export class TitlebarComponent {
+
+constructor(
+    @Inject(studyRichQueryToken) private studyRichQuery: StudyRichQuery,    // 通过构造函数，此处将其作为 TitlebarComponent 的依赖项
+)
+
+    this.turnToExam$
+      .pipe(
+        switchMap(() =>
+          this.studyRichQuery
+            .queryBy({
+              orderBy: 'asc',
+              limit: 1,
+              OrderByType: 'time',
+              state: ProcessState.Processing
+            })
+            .pipe(
+              filter(data => !!data.length),
+              map(data => data[0]),
+              first()
+            )
+        )
+      )
+}
+
+
+=====================1128 根据一个studyId 从数据库获取 patientId
+
+
+
+export type Study = TypedItem<
+  StudyTypes.Study,
+  string,
+  {
+    readonly height: number;
+    readonly is_anonymous?: boolean;
+    readonly operator_id: string;
+    readonly patient_id: string;
+    readonly sex: Sex;
+    readonly time?: Date;
+    readonly description?: string;
+    readonly name: string;
+    readonly weight: number;
+    readonly state: ProcessState;
+  },
+  {
+    readonly children_ids: string[];
+  }
+>;
+
+export type IStudyDataService = StoreService<Study>;
+
+export const StudyDataProviderToken = new InjectionToken<IStudyDataService>(
+  'StudyDataService'
+);
+
+export interface StoreService<T extends TagID<string, any>> {
+  queryMany(...ids: T['id'][]): Observable<T[]>;
+  createMany(...models: T[]): Observable<T[]>;
+  deleteMany(...ids: T['id'][]): Observable<T['id'][]>;
+  updateMany(...items: T[]): Observable<T[]>;
+}
+
+export function queryItemById<T extends TagID<string, any>>(
+  store: StoreService<T>,
+  id: T['id']
+): Observable<T> {
+  return store.queryMany(id).pipe(
+    filter((xs) => xs.length === 1),
+    map((xs) => xs[0])
+  );
+}
+
+import {
+  StudyDataProviderToken,
+  IStudyDataService
+} from ''
+
+@Inject(StudyDataProviderToken) private studyDataService: IStudyDataService,
+
+  backMain(studyId: Study['id']) {
+    studyId = this.x
+    if (studyId !== undefined) {
+      queryItemById(this.studyDataService, studyId)
+        .pipe(
+          first(),
+          // switchMap(ids => this.procotolDataService.queryMany(...ids))
+        )
+        .subscribe(
+          ps => {
+            console.log('========================', ps.data.patient_id);
+          },
+          e => console.error(e)
+        );
+    }
+  }
+
+----------------------------------------------------------------------------------------------------------------
+titlebar 的部分
+ ngOnInit() {
+    // why setTimeout(): use microtasks insetad of tasks
+    setTimeout(() => {
+      this.route.root.firstChild
+        ? this.route.root.firstChild.url.pipe(map(headE)).subscribe(
+            url => {
+              this.isDisplayMain = !!(url.path.toString() === 'main') ? 1 : 2;
+              // console.log('delay in exam: ', url); TODO
+            },
+            e => {
+              console.error(e);
+            }
+          )
+        : of(null);
+    }, 100); // exam 页面初次加载捕获不到 TODO
+
+    this.turnToExam$
+      .pipe(
+        switchMap(() =>
+          this.studyRichQuery
+            .queryBy({
+              orderBy: 'asc',
+              limit: 1,
+              OrderByType: 'time',
+              state: ProcessState.Processing
+            })
+            .pipe(
+              filter(data => !!data.length),
+              map(data => data[0]),
+              first()
+            )
+        )
+      )
+      .subscribe(
+        studyId => {
+          this.isDisplayMain = 2;
+          this.router.navigate(['exam', studyId]);
+          this.previousStudyId = studyId;
+        },
+        e => console.error(e)
+      );
+
+    of(1)
+      .pipe(
+        switchMap(() =>
+          this.studyRichQuery.queryAll().pipe(
+            first(),
+            map(studies =>
+              studies.find(s => s.data.state === ProcessState.Processing)
+            )
+          )
+        )
+      )
+      .subscribe(study => (study ? (this.previousStudyId = study.id) : null));
+    this.getPreviousPatientId$
+      .pipe(
+        switchMap((studyId: Study['id']) =>
+          queryItemById(this.studyDataService, this.previousStudyId)
+        )
+      )
+      .pipe(
+        first(),
+        map(study => study.data.patient_id)
+      )
+      .subscribe(
+        patientId => {
+          this.previousPatientId = patientId;
+        },
+        e => console.error(e)
+      );
+  }
+
+  toExam() {
+    // this.previousMainRoute = this.router.url.toString();
+    this.turnToExam$.next();
+    // setTimeout(() => {
+    this.getPreviousPatientId$.next();
+    // }, 100);
+  }
+
+  toMain() {
+    this.isDisplayMain = 1;
+    // this.previousMainRoute && this.previousMainRoute.split('/').length > 0
+    // ? this.router.navigate([this.previousMainRoute])
+    // : this.router.navigate(['main']);
+    !!this.previousPatientId
+      ? this.router.navigate([
+          `main/registration/${this.previousPatientId}/${this.previousStudyId}`
+        ])
+      : this.router.navigate(['main']);
+  }
