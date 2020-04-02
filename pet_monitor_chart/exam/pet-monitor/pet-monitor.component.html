@@ -1,0 +1,17 @@
+<div class="chartWrapper">
+    <div #chartSvg id="chartSvg"></div>
+    <div class="dataGroup" *ngIf='$combinedObs|async as data'>
+        <div>
+            <label for="singleInput">single</label>
+            {{data[0][data[0].length-1]}}
+        </div>
+        <div>
+            <label for="randomInput">random</label>
+            {{data[1][data[1].length-1]}}
+        </div>
+        <div>
+            <label for="coincidenceInput">coincidence</label>
+            {{data[2][data[2].length-1]}}
+        </div>
+    </div>
+</div>

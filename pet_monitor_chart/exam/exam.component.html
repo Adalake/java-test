@@ -1,0 +1,88 @@
+<div
+  class="exam"
+  fxLayout="column"
+  fxLayoutAlign="space-between stretch"
+  fxFlexFill
+>
+  <app-image-in-exam
+    (FOVsUpdate)="onFOVsUpdate($event)"
+    class="panel image-in-exam"
+    fxFlex
+  ></app-image-in-exam>
+  <div
+    class="control-in-exam"
+    fxLayout="row"
+    fxLayoutAlign="space-between stretch"
+    *ngIf="studyId$ | async as studyId"
+  >
+    <app-protocol-dashboard
+      [studyId]="{ id: studyId, counter: studyFlushCounter }"
+      class="panel protocol-dashboard"
+      (onSelectedItemChanged)="setDataOfParameterPanel($event)"
+      (onAddorDeleteProtocol)="onAddorDeleteProtocol($event)"
+      [leftPixelsToWindow]="0"
+      [bottomPixelsToWindow]="311"
+      [useOverLay]="true"
+      fxFlex
+      [iconDirection]="iconDirection"
+      [currentProtocolId]="currentProtocolId"
+      [currentScanId]="currentScanId"
+    ></app-protocol-dashboard>
+    <!-- <div
+      class="directive-in-control"
+      fxLayout="column"
+      fxLayoutAlign="space-between"
+    >
+      <app-parameter-in-exam
+        [changeExpand]="changeExpand"
+        class="panel parameter-form"
+        [ngClass]="changeExpand ? 'up' : 'down'"
+        [id]="idOfParameterPanelDisplay"
+        [type]="modalityOfParameterPanelDisplay"
+        (onChanged)="onParameterPanelChanged($event)"
+        (expandParameterPanel)="toggleParameterFormExpand()"
+      ></app-parameter-in-exam>
+      <app-user-hint
+        class="panel user-hint"
+        (action)="userHintAction($event)"
+        [model]="userHintModel"
+      ></app-user-hint>
+    </div> -->
+
+    <div class="panel information-in-control">
+      <app-information-in-control
+        *ngIf="!isShowDevelopMessage; else developMessagePanel"
+        (toggleDevelopMessage)="toggleShowDevelopMessage()"
+      ></app-information-in-control>
+    </div>
+  </div>
+</div>
+
+<ng-template #developMessagePanel>
+  <div>
+    <h2>Login</h2>
+    <button nz-button class="pi-button-hint" (click)="login()">Login</button>
+    <button nz-button class="pi-button-hint" (click)="logout()">Logout</button>
+    <button nz-button class="pi-button-hint">CHECK</button>
+  </div>
+  <button (click)="toggleShowDevelopMessage()" nz-button class="pi-button-hint">
+    Show Information
+  </button>
+  <div fxLayout="row wrapped">
+    <button
+      nz-button
+      class="pi-button-dark"
+      (click)="developSwitchScanHasHappened()"
+    >
+      switch:scanHasHappened
+    </button>
+    <button
+      nz-button
+      [ngClass]="isPassed(m) ? 'pi-button-hint' : 'pi-button-dark'"
+      *ngFor="let m of allMessages"
+      (click)="developSendUserHintMessage(m)"
+    >
+      send {{ m | json }}
+    </button>
+  </div>
+</ng-template>

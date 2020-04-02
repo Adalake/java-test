@@ -1,0 +1,61 @@
+@import "theme.less";
+@import "../../../scan/components/study-card/study-card.component.less";
+
+@posture-button-width: 55.5 * @unit-px;
+@posture-button-height: 18.75 * @unit-px;
+@scan-bed-img-width: 32 * @unit-px;
+
+@dashed-line: 0.5px solid @secondary;
+@area-padding: 2 * @padding;
+
+@left-bottom-height: 67.5 * @unit-px;
+@left-bottom-width: 42.5 * @unit-px;
+
+@bed-position-height: 12 * @unit-px;
+@bed-position-width: 25 * @unit-px;
+@bed-position-border: 1px solid @base;
+
+.study-card-box {
+  cursor: default;
+}
+
+.with-line {
+  border-right: @dashed-line;
+  height: 100%;
+}
+
+.top {
+  border-bottom: @dashed-line;
+  padding-bottom: @area-padding;
+}
+
+.bottom {
+  padding-top: @area-padding;
+}
+
+.posture-button {
+  width: @posture-button-width;
+  height: @posture-button-height;
+}
+
+.scan-bed-img {
+  width: @scan-bed-img-width;
+}
+
+.text {
+  font-size: @fontSize-3;
+  color: @base;
+  font-weight: @bold;
+}
+
+.left-bottom {
+    height: @left-bottom-height;
+    width: @left-bottom-width;
+    font-size: @fontSize-2;
+}
+
+.bed-position {
+    height:@bed-position-height;
+    width: @bed-position-width;
+    border: @bed-position-border;
+}

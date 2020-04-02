@@ -1,0 +1,48 @@
+@import 'theme.less';
+
+@control-exam-height: 78 * @unit-px;
+@directive-in-control: 180 * @unit-px;
+@user-hint-height: 30 * @unit-px;
+
+.image-in-exam {
+  padding: @padding;
+  background: @primary;
+}
+
+.control-in-exam {
+  height: @control-exam-height;
+  margin-top: @margin;
+}
+
+.directive-in-control {
+  margin-left: @margin;
+  position: relative;
+}
+
+.parameter-form {
+  width: @directive-in-control;
+  position: absolute;
+  z-index: 999;
+  padding-top: 2px;
+}
+
+.user-hint {
+  width: @directive-in-control;
+  height: @user-hint-height;
+  position: relative;
+  top: 188px + 4px;
+}
+
+.information-in-control {
+  width: 216 * @unit-px;
+  margin-left: @margin;
+}
+
+.up {
+  height: 376px;
+  top: -(@control-exam-height - @margin - @user-hint-height);
+}
+
+.down {
+  height: @control-exam-height - @margin - @user-hint-height;
+}

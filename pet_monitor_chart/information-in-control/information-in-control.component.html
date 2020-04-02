@@ -1,0 +1,57 @@
+<div fxFlexFill fxLayout="column" fxLayoutAlign="start stretch">
+  <div class="top" fxLayout="row" fxLayoutAlign="space-between center" fxFlex="34">
+    <div class="with-line" fxFlex="47">
+      <!-- Tool Box -->
+      <button nz-button class="pi-button-dark" (click)="onToggleDevelopMessage()">
+        DevelopMessage
+      </button>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="center">
+      <div class="study-card-box pi-card" fxLayout="column" fxLayoutAlign="start stretch">
+        <div fxLayout="row" class="study-card-top" fxLayoutAlign="space-between center">
+          <div class="text-name text">Andy Zhang</div>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="text-age text age-area" fxLayout="row" fxLayoutAlign="center">
+              23 Y
+            </div>
+            <div class="gender-area" fxLayout="column" fxLayoutAlign="center">
+              <img src="assets/icon/female.png" alt="person" width="25" height="25" />
+            </div>
+            <div class="text-number text right-side" fxLayout="row" fxLayoutAlign="end center">
+              1234567890123
+            </div>
+          </div>
+        </div>
+        <div class="study-card-bottom text-type" fxLayout="row" fxLayoutAlign="space-between center">
+          PET-CT WB Procedure(Body&Head)
+          <div class="text-number text right-side" fxLayout="row" fxLayoutAlign="end center">
+            2019/05/06 18:30
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom" fxFlex>
+    <div class="with-line left-bottom" fxFlex="47" fxLayout="column" fxLayoutAlign="center center" fxFlexFill>
+      <div fxLayout="row" fxLayoutAlign="space-around center">
+        Horizontal <br />Vertical
+        <div>
+          Bed Position
+          <div class="bed-position" fxLayout="column" fxLayoutAlign="center center">
+            1200 <br />800
+          </div>
+        </div>
+      </div>
+      <button nz-button class="pi-button-dark posture-button" nzType="primary">
+        <div fxLayout="row" fxLayoutAlign="space-between center">
+          <img class="scan-bed-img" src="assets/bedPosition-svg/HFS.svg" />
+          <div class="text">HFS</div>
+        </div>
+      </button>
+    </div>
+
+    <div>
+      <app-pet-monitor [$single]='$buffered' [$random]='$buffered' [$coincidence]='$buffered'></app-pet-monitor>
+    </div>
+  </div>
+</div>
